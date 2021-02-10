@@ -1,0 +1,5 @@
+add_test(tests tests)
+find_package(check)
+add_executable(tests tests.c)
+target_link_libraries(tests check bop)
+include(Dart)

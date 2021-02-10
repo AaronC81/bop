@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.19)
+project(bop)
+add_subdirectory(lib)
+add_subdirectory(include)
+enable_testing()
+add_subdirectory(tests)
