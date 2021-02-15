@@ -1,4 +1,6 @@
 #include "expression.h"
+#define TAGGED_UNION_FUNCTION_DEFINITIONS
+#include "tagged_union_generate.h"
 
 #include "tagged_union_utils.h"
 
@@ -16,4 +18,6 @@ enum result expression_evaluate(struct expression *exp, bop_number *out) {
             *out = l + r;
         TAGGED_UNION_ESAC
     }
+
+    return RESULT_OK;
 }

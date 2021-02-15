@@ -5,6 +5,8 @@
 #define CONCAT(X, Y) _CONCAT(X, Y)
 #define CONCAT3(X, Y, Z) CONCAT(X, CONCAT(Y, Z))
 
+#ifndef TAGGED_UNION_FUNCTION_DEFINITIONS
+
 // Forward-define the main struct
 struct TAGGED_UNION_NAME;
 
@@ -35,7 +37,10 @@ struct TAGGED_UNION_NAME {
     union TAGGED_UNION__UNION_NAME value;
 };
 
+#endif
+
 // Define matcher functions
+#ifdef TAGGED_UNION_FUNCTION_DEFINITIONS
 #define VARIANT(name, contents) \
     bool CONCAT3(TAGGED_UNION_NAME, _is_, name)(struct TAGGED_UNION_NAME u, struct CONCAT3(TAGGED_UNION_NAME, _, name) *out) { \
         if (u.tag == CONCAT3(TAGGED_UNION_NAME, __tag_, name)) { \
@@ -46,5 +51,27 @@ struct TAGGED_UNION_NAME {
         } \
         return false; \
     }
+#else
+#define VARIANT(name, contents) \
+    bool CONCAT3(TAGGED_UNION_NAME, _is_, name)(struct TAGGED_UNION_NAME u, struct CONCAT3(TAGGED_UNION_NAME, _, name) *out);
+#endif
+TAGGED_UNION_VARIANTS
+#undef VARIANT
+
+// Define builder functions
+#ifdef TAGGED_UNION_FUNCTION_DEFINITIONS
+#define VARIANT(name, contents) \
+    struct TAGGED_UNION_NAME CONCAT3(TAGGED_UNION_NAME, _new_, name)(struct CONCAT3(TAGGED_UNION_NAME, _, name) value) { \
+        return (struct TAGGED_UNION_NAME){ \
+            .tag = CONCAT3(TAGGED_UNION_NAME, __tag_, name), \
+            .value = (union TAGGED_UNION__UNION_NAME){ \
+                .name = value \
+            } \
+        }; \
+    }
+#else
+#define VARIANT(name, contents) \
+    struct TAGGED_UNION_NAME CONCAT3(TAGGED_UNION_NAME, _new_, name)(struct CONCAT3(TAGGED_UNION_NAME, _, name) value);
+#endif
 TAGGED_UNION_VARIANTS
 #undef VARIANT
