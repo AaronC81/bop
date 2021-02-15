@@ -25,12 +25,28 @@ START_TEST(expression_evaluate_operator_add) {
 }
 END_TEST
 
+START_TEST(expression_evaluate_operator_divide) {
+    struct expression b = expression_new_number((struct expression_number){ .n = 2.5 });
+    struct expression t1 = expression_new_number((struct expression_number){ .n = 13 });
+    struct expression t2 = expression_new_number((struct expression_number){ .n = 3.25 });
+    struct expression t = expression_new_operator_divide((struct expression_operator_divide){ .top = &t1, .bottom = &t2 });
+    struct expression div = expression_new_operator_divide((struct expression_operator_divide){ .top = &t, .bottom = &b });
+    
+    bop_number n;
+    fail_unless(expression_evaluate(&t, &n) == RESULT_OK);
+    fail_unless(n == 4.0);
+    fail_unless(expression_evaluate(&div, &n) == RESULT_OK);
+    fail_unless(n == 1.6);
+}
+END_TEST
+
 
 TCase* expression_tcase() {
     TCase* tcase = tcase_create("expression");
 
     tcase_add_test(tcase, expression_evaluate_number);
     tcase_add_test(tcase, expression_evaluate_operator_add);
+    tcase_add_test(tcase, expression_evaluate_operator_divide);
 
     return tcase;
 }

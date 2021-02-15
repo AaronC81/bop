@@ -7,7 +7,8 @@
 #define TAGGED_UNION_NAME expression
 #define TAGGED_UNION_VARIANTS \
     VARIANT(number, { bop_number n; }) \
-    VARIANT(operator_add, { struct expression *left; struct expression *right; })
+    VARIANT(operator_add, { struct expression *left; struct expression *right; }) \
+    VARIANT(operator_divide, { struct expression *top; struct expression *bottom; })
 #include "tagged_union_generate.h"
 
 #define EXPRESSION_PROPAGATE(x) { \

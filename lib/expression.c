@@ -17,6 +17,14 @@ enum result expression_evaluate(struct expression *exp, bop_number *out) {
 
             *out = l + r;
         TAGGED_UNION_ESAC
+
+        TAGGED_UNION_CASE(expression, operator_divide, div_exp)
+            bop_number t, b;
+            EXPRESSION_PROPAGATE(expression_evaluate(div_exp.top, &t))
+            EXPRESSION_PROPAGATE(expression_evaluate(div_exp.bottom, &b))
+
+            *out = t / b;
+        TAGGED_UNION_ESAC
     }
 
     return RESULT_OK;
