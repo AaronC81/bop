@@ -5,45 +5,45 @@
 #define CONCAT(X, Y) _CONCAT(X, Y)
 #define CONCAT3(X, Y, Z) CONCAT(X, CONCAT(Y, Z))
 
-#ifndef TAGGED_UNION_FUNCTION_DEFINITIONS
+#ifndef BOP_TAGGED_UNION_FUNCTION_DEFINITIONS
 
 // Forward-define the main struct
-struct TAGGED_UNION_NAME;
+struct BOP_TAGGED_UNION_NAME;
 
 // Define the structs
-#define VARIANT(name, contents) struct CONCAT3(TAGGED_UNION_NAME, _, name) contents;
-TAGGED_UNION_VARIANTS
+#define VARIANT(name, contents) struct CONCAT3(BOP_TAGGED_UNION_NAME, _, name) contents;
+BOP_TAGGED_UNION_VARIANTS
 #undef VARIANT
 
 // Define the union
-#define VARIANT(name, contents) struct CONCAT3(TAGGED_UNION_NAME, _, name) name;
-#define TAGGED_UNION__UNION_NAME CONCAT(TAGGED_UNION_NAME, __union)
-union TAGGED_UNION__UNION_NAME {
-    TAGGED_UNION_VARIANTS
+#define VARIANT(name, contents) struct CONCAT3(BOP_TAGGED_UNION_NAME, _, name) name;
+#define BOP_TAGGED_UNION__UNION_NAME CONCAT(BOP_TAGGED_UNION_NAME, __union)
+union BOP_TAGGED_UNION__UNION_NAME {
+    BOP_TAGGED_UNION_VARIANTS
 };
 #undef VARIANT
 
 // Define the tags
-#define VARIANT(name, contents) CONCAT3(TAGGED_UNION_NAME, __tag_, name),
-#define TAGGED_UNION__ENUM_NAME CONCAT(TAGGED_UNION_NAME, __tag)
-enum TAGGED_UNION__ENUM_NAME {
-    TAGGED_UNION_VARIANTS
+#define VARIANT(name, contents) CONCAT3(BOP_TAGGED_UNION_NAME, __tag_, name),
+#define BOP_TAGGED_UNION__ENUM_NAME CONCAT(BOP_TAGGED_UNION_NAME, __tag)
+enum BOP_TAGGED_UNION__ENUM_NAME {
+    BOP_TAGGED_UNION_VARIANTS
 };
 #undef VARIANT
 
 // Define the tagged union
-struct TAGGED_UNION_NAME {
-    enum TAGGED_UNION__ENUM_NAME tag;
-    union TAGGED_UNION__UNION_NAME value;
+struct BOP_TAGGED_UNION_NAME {
+    enum BOP_TAGGED_UNION__ENUM_NAME tag;
+    union BOP_TAGGED_UNION__UNION_NAME value;
 };
 
 #endif
 
 // Define matcher functions
-#ifdef TAGGED_UNION_FUNCTION_DEFINITIONS
+#ifdef BOP_TAGGED_UNION_FUNCTION_DEFINITIONS
 #define VARIANT(name, contents) \
-    bool CONCAT3(TAGGED_UNION_NAME, _is_, name)(struct TAGGED_UNION_NAME u, struct CONCAT3(TAGGED_UNION_NAME, _, name) *out) { \
-        if (u.tag == CONCAT3(TAGGED_UNION_NAME, __tag_, name)) { \
+    bool CONCAT3(BOP_TAGGED_UNION_NAME, _is_, name)(struct BOP_TAGGED_UNION_NAME u, struct CONCAT3(BOP_TAGGED_UNION_NAME, _, name) *out) { \
+        if (u.tag == CONCAT3(BOP_TAGGED_UNION_NAME, __tag_, name)) { \
             if (out != NULL) { \
                 *out = u.value.name; \
             } \
@@ -53,25 +53,25 @@ struct TAGGED_UNION_NAME {
     }
 #else
 #define VARIANT(name, contents) \
-    bool CONCAT3(TAGGED_UNION_NAME, _is_, name)(struct TAGGED_UNION_NAME u, struct CONCAT3(TAGGED_UNION_NAME, _, name) *out);
+    bool CONCAT3(BOP_TAGGED_UNION_NAME, _is_, name)(struct BOP_TAGGED_UNION_NAME u, struct CONCAT3(BOP_TAGGED_UNION_NAME, _, name) *out);
 #endif
-TAGGED_UNION_VARIANTS
+BOP_TAGGED_UNION_VARIANTS
 #undef VARIANT
 
 // Define builder functions
-#ifdef TAGGED_UNION_FUNCTION_DEFINITIONS
+#ifdef BOP_TAGGED_UNION_FUNCTION_DEFINITIONS
 #define VARIANT(name, contents) \
-    struct TAGGED_UNION_NAME CONCAT3(TAGGED_UNION_NAME, _new_, name)(struct CONCAT3(TAGGED_UNION_NAME, _, name) value) { \
-        return (struct TAGGED_UNION_NAME){ \
-            .tag = CONCAT3(TAGGED_UNION_NAME, __tag_, name), \
-            .value = (union TAGGED_UNION__UNION_NAME){ \
+    struct BOP_TAGGED_UNION_NAME CONCAT3(BOP_TAGGED_UNION_NAME, _new_, name)(struct CONCAT3(BOP_TAGGED_UNION_NAME, _, name) value) { \
+        return (struct BOP_TAGGED_UNION_NAME){ \
+            .tag = CONCAT3(BOP_TAGGED_UNION_NAME, __tag_, name), \
+            .value = (union BOP_TAGGED_UNION__UNION_NAME){ \
                 .name = value \
             } \
         }; \
     }
 #else
 #define VARIANT(name, contents) \
-    struct TAGGED_UNION_NAME CONCAT3(TAGGED_UNION_NAME, _new_, name)(struct CONCAT3(TAGGED_UNION_NAME, _, name) value);
+    struct BOP_TAGGED_UNION_NAME CONCAT3(BOP_TAGGED_UNION_NAME, _new_, name)(struct CONCAT3(BOP_TAGGED_UNION_NAME, _, name) value);
 #endif
-TAGGED_UNION_VARIANTS
+BOP_TAGGED_UNION_VARIANTS
 #undef VARIANT

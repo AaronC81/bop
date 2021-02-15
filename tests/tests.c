@@ -8,7 +8,7 @@ int main() {
     Suite *suite = suite_create("bop");
 
     suite_add_tcase(suite, token_tcase());
-    suite_add_tcase(suite, expression_tcase());
+    suite_add_tcase(suite, bop_expression_tcase());
 
     SRunner *suite_runner = srunner_create(suite);
 
