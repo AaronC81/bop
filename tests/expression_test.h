@@ -40,6 +40,44 @@ START_TEST(bop_expression_evaluate_operator_divide) {
 }
 END_TEST
 
+START_TEST(bop_expression_upgrade_no_change) {
+    struct bop_expression input_number = bop_expression_new_number((struct bop_expression_number){ .n = 2.5 });
+    struct bop_expression in = bop_expression_new_unstructured((struct bop_expression_unstructured){
+        .children = (struct bop_expression*[]){ &input_number },
+        .children_length = 1,
+    });
+    struct bop_expression out;
+
+    fail_unless(bop_expression_upgrade(&in, &out) == RESULT_OK);
+    struct bop_expression_number n;
+    fail_unless(bop_expression_is_number(out, &n));
+    fail_unless(n.n == 2.5);
+}
+END_TEST
+
+START_TEST(bop_expression_upgrade_simple_addition) {
+    struct bop_expression left = bop_expression_new_number((struct bop_expression_number){ .n = 2.5 });
+    struct bop_expression plus = bop_expression_new_token((struct bop_expression_token){ .t = BOP_TOKEN_PLUS });
+    struct bop_expression right = bop_expression_new_number((struct bop_expression_number){ .n = 4.2 });
+
+    struct bop_expression in = bop_expression_new_unstructured((struct bop_expression_unstructured){
+        .children = (struct bop_expression*[]){ &left, &plus, &right },
+        .children_length = 3,
+    });
+    struct bop_expression out;
+
+    fail_unless(bop_expression_upgrade(&in, &out) == RESULT_OK);
+    struct bop_expression_operator_add a;
+    struct bop_expression_number n;
+    fail_unless(bop_expression_is_operator_add(out, &a));
+
+    fail_unless(bop_expression_is_number(*a.left, &n));
+    fail_unless(n.n == 2.5);
+    fail_unless(bop_expression_is_number(*a.right, &n));
+    fail_unless(n.n == 4.2);
+}
+END_TEST
+
 
 TCase* bop_expression_tcase() {
     TCase* tcase = tcase_create("bop_expression");
@@ -47,6 +85,9 @@ TCase* bop_expression_tcase() {
     tcase_add_test(tcase, bop_expression_evaluate_number);
     tcase_add_test(tcase, bop_expression_evaluate_operator_add);
     tcase_add_test(tcase, bop_expression_evaluate_operator_divide);
+
+    tcase_add_test(tcase, bop_expression_upgrade_no_change);
+    tcase_add_test(tcase, bop_expression_upgrade_simple_addition);
 
     return tcase;
 }

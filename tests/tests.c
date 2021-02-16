@@ -11,6 +11,7 @@ int main() {
     suite_add_tcase(suite, bop_expression_tcase());
 
     SRunner *suite_runner = srunner_create(suite);
+    srunner_set_fork_status(suite_runner, CK_NOFORK);
 
     // Run tests
     srunner_run_all(suite_runner, CK_NORMAL);

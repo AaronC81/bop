@@ -95,3 +95,27 @@ associativity, and ensures that all slots have only one child.
                                      |      +number(2)
                                      |    -bottom:    
                                      \      +number(4)
+
+## Upgrading is "Atomic"
+
+For want of a better word, upgrading an expression tree should be an "atomic"
+operation; that is, you should not mix upgraded and downgraded components of a
+tree. 
+
+It isn't strictly an error to do this, but may lead to unexpected results,
+particularly with operator precedence. Take the following non-atomic tree:
+
++root
+  -top:
+    +number(2)
+    +token(*)
+    +add
+      -left:
+        +number(1)
+      -right:
+        +number(4)
+
+Especially with the lack of parentheses, it may not be immediately intuitive
+in what order the addition and multiplication are evaluated once the tree is
+upgraded. (The addition occurs first.) A fully-upgraded or fully-downgraded tree
+would have shown this more clearly.
