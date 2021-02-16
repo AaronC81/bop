@@ -25,6 +25,18 @@ enum result bop_expression_evaluate(struct bop_expression *exp, bop_number *out)
 
             *out = t / b;
         BOP_TAGGED_UNION_ESAC
+
+        BOP_TAGGED_UNION_CASE(bop_expression, unstructured, _)
+            return RESULT_EVALUATE_UNSTRUCTURED;
+        BOP_TAGGED_UNION_ESAC
+
+        BOP_TAGGED_UNION_CASE(bop_expression, token, _)
+            return RESULT_EVALUATE_TOKEN;
+        BOP_TAGGED_UNION_ESAC
+        
+        BOP_TAGGED_UNION_CASE(bop_expression, placeholder, _)
+            return RESULT_EVALUATE_PLACEHOLDER;
+        BOP_TAGGED_UNION_ESAC
     }
 
     return RESULT_OK;
