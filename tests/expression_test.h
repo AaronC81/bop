@@ -67,16 +67,46 @@ START_TEST(bop_expression_upgrade_simple_addition) {
     struct bop_expression out;
 
     fail_unless(bop_expression_upgrade(&in, &out) == RESULT_OK);
+
     struct bop_expression_operator_add a;
     struct bop_expression_number n;
-    fail_unless(bop_expression_is_operator_add(out, &a));
 
+    fail_unless(bop_expression_is_operator_add(out, &a));
     fail_unless(bop_expression_is_number(*a.left, &n));
     fail_unless(n.n == 2.5);
     fail_unless(bop_expression_is_number(*a.right, &n));
     fail_unless(n.n == 4.2);
 }
 END_TEST
+
+START_TEST(bop_expression_upgrade_associativity) {
+    struct bop_expression a = bop_expression_new_number((struct bop_expression_number){ .n = 8 });
+    struct bop_expression b = bop_expression_new_token((struct bop_expression_token){ .t = BOP_TOKEN_DIVIDE });
+    struct bop_expression c = bop_expression_new_number((struct bop_expression_number){ .n = 4 });
+    struct bop_expression d = bop_expression_new_token((struct bop_expression_token){ .t = BOP_TOKEN_DIVIDE });
+    struct bop_expression e = bop_expression_new_number((struct bop_expression_number){ .n = 2 });
+
+    struct bop_expression in = bop_expression_new_unstructured((struct bop_expression_unstructured){
+        .children = (struct bop_expression*[]){ &a, &b, &c, &d, &e },
+        .children_length = 5,
+    });
+    struct bop_expression out;
+
+    fail_unless(bop_expression_upgrade(&in, &out) == RESULT_OK);
+
+    struct bop_expression_operator_divide div;
+    struct bop_expression_number n;
+
+    fail_unless(bop_expression_is_operator_divide(out, &div));
+    fail_unless(bop_expression_is_number(*div.bottom, &n));
+    fail_unless(n.n == 2);
+
+    fail_unless(bop_expression_is_operator_divide(*div.top, &div));
+    fail_unless(bop_expression_is_number(*div.top, &n));
+    fail_unless(n.n == 8);
+    fail_unless(bop_expression_is_number(*div.bottom, &n));
+    fail_unless(n.n == 4);
+}
 
 
 TCase* bop_expression_tcase() {
