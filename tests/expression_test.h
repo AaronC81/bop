@@ -107,6 +107,29 @@ START_TEST(bop_expression_upgrade_associativity) {
     fail_unless(bop_expression_is_number(*div.right, &n));
     fail_unless(n.n == 4);
 }
+END_TEST
+
+START_TEST(bop_expression_upgrade_digit_tokens) {
+    struct bop_expression *in = bop_expression_new_unstructured_from_tokens((enum bop_token[]){
+        BOP_TOKEN_1,
+        BOP_TOKEN_2,
+        BOP_TOKEN_3,
+        BOP_TOKEN_PLUS,
+        BOP_TOKEN_4,
+    }, 5);
+    struct bop_expression out;
+
+    fail_unless(bop_expression_upgrade(in, &out) == RESULT_OK);
+
+    struct bop_expression_operator_add add;
+    struct bop_expression_number n;
+    fail_unless(bop_expression_is_operator_add(out, &add));
+    fail_unless(bop_expression_is_number(*add.left, &n));
+    fail_unless(n.n == 123);
+    fail_unless(bop_expression_is_number(*add.right, &n));
+    fail_unless(n.n == 4);
+}
+END_TEST
 
 
 TCase* bop_expression_tcase() {
@@ -118,6 +141,8 @@ TCase* bop_expression_tcase() {
 
     tcase_add_test(tcase, bop_expression_upgrade_no_change);
     tcase_add_test(tcase, bop_expression_upgrade_simple_addition);
+    tcase_add_test(tcase, bop_expression_upgrade_associativity);
+    tcase_add_test(tcase, bop_expression_upgrade_digit_tokens);
 
     return tcase;
 }

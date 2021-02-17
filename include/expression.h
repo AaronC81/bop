@@ -37,6 +37,12 @@ enum result bop_expression_evaluate(struct bop_expression *exp, bop_number *out)
  */
 enum result bop_expression_upgrade(struct bop_expression *in, struct bop_expression *out);
 
+/**
+ * Creates a new unstructured expression from an array of \p tokens and returns
+ * it. The unstructured expression and its children are allocated to the heap.
+ */
+struct bop_expression* bop_expression_new_unstructured_from_tokens(enum bop_token *tokens, size_t tokens_length);
+
 struct bop_expression_upgrade_parse_context {
     struct bop_expression *in;
     uint16_t index;
