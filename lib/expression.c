@@ -21,11 +21,11 @@ enum result bop_expression_evaluate(struct bop_expression *exp, bop_number *out)
         BOP_TAGGED_UNION_ESAC
 
         BOP_TAGGED_UNION_CASE(bop_expression, operator_divide, div_exp)
-            bop_number t, b;
-            BOP_EXPRESSION_PROPAGATE(bop_expression_evaluate(div_exp.top, &t))
-            BOP_EXPRESSION_PROPAGATE(bop_expression_evaluate(div_exp.bottom, &b))
+            bop_number l, r;
+            BOP_EXPRESSION_PROPAGATE(bop_expression_evaluate(div_exp.left, &l))
+            BOP_EXPRESSION_PROPAGATE(bop_expression_evaluate(div_exp.right, &r))
 
-            *out = t / b;
+            *out = l / r;
         BOP_TAGGED_UNION_ESAC
 
         BOP_TAGGED_UNION_CASE(bop_expression, unstructured, _)
@@ -58,9 +58,9 @@ enum result bop_expression_upgrade(struct bop_expression *in, struct bop_express
         BOP_TAGGED_UNION_ESAC
 
         BOP_TAGGED_UNION_CASE(bop_expression, operator_divide, div_exp)
-            bop_number t, b;
-            BOP_EXPRESSION_PROPAGATE(bop_expression_upgrade(div_exp.top, out->value.operator_divide.top))
-            BOP_EXPRESSION_PROPAGATE(bop_expression_upgrade(div_exp.bottom, out->value.operator_divide.bottom))
+            *out = *in;
+            BOP_EXPRESSION_PROPAGATE(bop_expression_upgrade(div_exp.left, out->value.operator_divide.left))
+            BOP_EXPRESSION_PROPAGATE(bop_expression_upgrade(div_exp.right, out->value.operator_divide.right))
         BOP_TAGGED_UNION_ESAC
 
         BOP_TAGGED_UNION_CASE(bop_expression, unstructured, _)
@@ -96,7 +96,9 @@ enum result bop_expression_upgrade_parse_level1(struct bop_expression_upgrade_pa
     struct bop_expression_token token;
     while (!PARSE_EOI
         && bop_expression_is_token(*PARSE_CURR, &token)
-        && token.t == BOP_TOKEN_PLUS) {
+        && (token.t == BOP_TOKEN_PLUS || token.t == BOP_TOKEN_MINUS)) {
+
+        enum bop_token this_token = token.t;
 
         // Discard this token
         PARSE_NEXT;
@@ -108,12 +110,20 @@ enum result bop_expression_upgrade_parse_level1(struct bop_expression_upgrade_pa
         struct bop_expression *right = malloc(sizeof(struct bop_expression));
         *left = *out;
 
-        // Construct an addition and parse the right side
-        *out = bop_expression_new_operator_add((struct bop_expression_operator_add){
-            .left = left,
-            .right = right,
-        });
-        BOP_EXPRESSION_PROPAGATE(bop_expression_upgrade_parse_level2(ctx, out->value.operator_add.right));
+        // Construct an addition/subtraction and parse the right side
+        if (this_token == BOP_TOKEN_PLUS) {
+            *out = bop_expression_new_operator_add((struct bop_expression_operator_add){
+                .left = left,
+                .right = right,
+            });
+            BOP_EXPRESSION_PROPAGATE(bop_expression_upgrade_parse_level2(ctx, out->value.operator_add.right));
+        } else {
+            *out = bop_expression_new_operator_subtract((struct bop_expression_operator_subtract){
+                .left = left,
+                .right = right,
+            });
+            BOP_EXPRESSION_PROPAGATE(bop_expression_upgrade_parse_level2(ctx, out->value.operator_subtract.right));
+        }
     }
 
     return RESULT_OK;
@@ -125,23 +135,33 @@ enum result bop_expression_upgrade_parse_level2(struct bop_expression_upgrade_pa
     struct bop_expression_token token;
     while (!PARSE_EOI
         && bop_expression_is_token(*PARSE_CURR, &token)
-        && token.t == BOP_TOKEN_DIVIDE) {
+        && (token.t == BOP_TOKEN_MULTIPLY || token.t == BOP_TOKEN_DIVIDE)) {
+
+        enum bop_token this_token = token.t;
 
         // Discard this token
         PARSE_NEXT;
 
-        // Copy the old output node, which will become the top side, into a new
+        // Copy the old output node, which will become the left side, into a new
         // malloced location
-        struct bop_expression *top = malloc(sizeof(struct bop_expression));
-        struct bop_expression *bottom = malloc(sizeof(struct bop_expression));
-        *top = *out;
+        struct bop_expression *left = malloc(sizeof(struct bop_expression));
+        struct bop_expression *right = malloc(sizeof(struct bop_expression));
+        *left = *out;
 
-        // Construct a division and parse the right side
-        *out = bop_expression_new_operator_divide((struct bop_expression_operator_divide){
-            .top = top,
-            .bottom = bottom,
-        });
-        BOP_EXPRESSION_PROPAGATE(bop_expression_upgrade_parse_level3(ctx, out->value.operator_divide.bottom));
+        // Construct a multiplication/division and parse the right side
+        if (this_token == BOP_TOKEN_MULTIPLY) {
+            *out = bop_expression_new_operator_multiply((struct bop_expression_operator_multiply){
+                .left = left,
+                .right = right,
+            });
+            BOP_EXPRESSION_PROPAGATE(bop_expression_upgrade_parse_level3(ctx, out->value.operator_multiply.right));
+        } else {
+            *out = bop_expression_new_operator_divide((struct bop_expression_operator_divide){
+                .left = left,
+                .right = right,
+            });
+            BOP_EXPRESSION_PROPAGATE(bop_expression_upgrade_parse_level3(ctx, out->value.operator_divide.right));
+        }
     }
 
     return RESULT_OK;

@@ -29,8 +29,8 @@ START_TEST(bop_expression_evaluate_operator_divide) {
     struct bop_expression b = bop_expression_new_number((struct bop_expression_number){ .n = 2.5 });
     struct bop_expression t1 = bop_expression_new_number((struct bop_expression_number){ .n = 13 });
     struct bop_expression t2 = bop_expression_new_number((struct bop_expression_number){ .n = 3.25 });
-    struct bop_expression t = bop_expression_new_operator_divide((struct bop_expression_operator_divide){ .top = &t1, .bottom = &t2 });
-    struct bop_expression div = bop_expression_new_operator_divide((struct bop_expression_operator_divide){ .top = &t, .bottom = &b });
+    struct bop_expression t = bop_expression_new_operator_divide((struct bop_expression_operator_divide){ .left = &t1, .right = &t2 });
+    struct bop_expression div = bop_expression_new_operator_divide((struct bop_expression_operator_divide){ .left = &t, .right = &b });
     
     bop_number n;
     fail_unless(bop_expression_evaluate(&t, &n) == RESULT_OK);
@@ -98,13 +98,13 @@ START_TEST(bop_expression_upgrade_associativity) {
     struct bop_expression_number n;
 
     fail_unless(bop_expression_is_operator_divide(out, &div));
-    fail_unless(bop_expression_is_number(*div.bottom, &n));
+    fail_unless(bop_expression_is_number(*div.right, &n));
     fail_unless(n.n == 2);
 
-    fail_unless(bop_expression_is_operator_divide(*div.top, &div));
-    fail_unless(bop_expression_is_number(*div.top, &n));
+    fail_unless(bop_expression_is_operator_divide(*div.left, &div));
+    fail_unless(bop_expression_is_number(*div.left, &n));
     fail_unless(n.n == 8);
-    fail_unless(bop_expression_is_number(*div.bottom, &n));
+    fail_unless(bop_expression_is_number(*div.right, &n));
     fail_unless(n.n == 4);
 }
 

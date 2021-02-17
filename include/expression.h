@@ -8,7 +8,9 @@
 #define BOP_TAGGED_UNION_VARIANTS \
     VARIANT(number, { bop_number n; }) \
     VARIANT(operator_add, { struct bop_expression *left; struct bop_expression *right; }) \
-    VARIANT(operator_divide, { struct bop_expression *top; struct bop_expression *bottom; }) \
+    VARIANT(operator_subtract, { struct bop_expression *left; struct bop_expression *right; }) \
+    VARIANT(operator_multiply, { struct bop_expression *left; struct bop_expression *right; }) \
+    VARIANT(operator_divide, { struct bop_expression *left; struct bop_expression *right; }) \
     \
     VARIANT(unstructured, { struct bop_expression **children; uint16_t children_length; }) \
     VARIANT(token, { enum bop_token t; }) \
