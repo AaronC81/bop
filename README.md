@@ -1,5 +1,9 @@
 # Bop
 
+Archived in favour of [rbop](https://github.com/AaronC81/rbop)
+
+-----
+
 Bop is a very work-in-progress C library for dealing with the entire pipeline
 of performing maths. Once done, it'll include:
 
